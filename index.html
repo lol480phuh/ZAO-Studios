@@ -1,531 +1,61 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CATS CRADLE // NEON THREAD</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Themes for App: No-Code Static Website Builder</title>
+    <meta name="description" content="Make fully-responsive websites FAST for your next Startup, Newsletter, lead capture and Side-project." />
+    <meta name="keywords" content="themes, app, no-code, static website builder" />
+    <link rel="icon" href="./assets/images/logo.svg" />
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <!-- Open Graph data -->
+    <meta property="og:title" content="Themes for App: No-Code Static Website Builder" />
+    <meta property="og:description" content="Make fully-responsive websites FAST for your next Startup, Newsletter, lead capture and Side-project." />
+    <meta property="og:url" content="https://themesfor.app" />
+    <meta property="og:image:url" content="./assets/images/og-image.png" />
+    <meta property="og:image:alt" content="Social share image for Themes for App: No-Code Static Website Builder" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Themes For App" />
+    <meta property="og:locale" content="en" />
+    <meta property="og:type" content="website" />
 
-  body {
-    background: #000;
-    overflow: hidden;
-    font-family: 'Share Tech Mono', monospace;
-    color: #0ff;
-  }
+    <!-- Twitter Card data -->
+    <meta name="twitter:title" content="Themes for App: No-Code Static Website Builder" />
+    <meta name="twitter:description" content="Make fully-responsive websites FAST for your next Startup, Newsletter, lead capture and Side-project." />
+    <meta name="twitter:image" content="./assets/images/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
 
-  #app {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-  }
+    <link rel="stylesheet" href="./assets/styles.css" />
 
-  /* Hidden real video feed */
-  #webcam {
-    position: absolute;
-    width: 1px; height: 1px;
-    opacity: 0;
-    pointer-events: none;
-  }
+    
 
-  /* Main canvas - behind everything */
-  #main-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Scanline overlay */
-  #scanlines {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.08) 2px,
-      rgba(0, 0, 0, 0.08) 4px
-    );
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  /* Vignette */
-  #vignette {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,20,0.85) 100%);
-    pointer-events: none;
-    z-index: 11;
-  }
-
-  /* HUD UI */
-  #hud {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    padding: 18px 28px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    z-index: 20;
-    pointer-events: none;
-  }
-
-  .hud-title {
-    font-size: 11px;
-    letter-spacing: 0.35em;
-    color: rgba(0,255,255,0.6);
-    text-transform: uppercase;
-    line-height: 1.6;
-  }
-  .hud-title strong {
-    display: block;
-    font-size: 18px;
-    color: #0ff;
-    letter-spacing: 0.2em;
-    text-shadow: 0 0 12px #0ff, 0 0 30px rgba(0,255,255,0.4);
-  }
-
-  .hud-right {
-    text-align: right;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: rgba(0,255,255,0.4);
-    line-height: 2;
-  }
-
-  #status-dot {
-    display: inline-block;
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #f0f;
-    box-shadow: 0 0 8px #f0f;
-    margin-right: 6px;
-    animation: pulse 1.4s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-  #corner-tl, #corner-tr, #corner-bl, #corner-br {
-    position: absolute;
-    width: 24px; height: 24px;
-    z-index: 20;
-    pointer-events: none;
-  }
-  #corner-tl { top: 8px; left: 8px; border-top: 1px solid rgba(0,255,255,0.4); border-left: 1px solid rgba(0,255,255,0.4); }
-  #corner-tr { top: 8px; right: 8px; border-top: 1px solid rgba(0,255,255,0.4); border-right: 1px solid rgba(0,255,255,0.4); }
-  #corner-bl { bottom: 8px; left: 8px; border-bottom: 1px solid rgba(0,255,255,0.4); border-left: 1px solid rgba(0,255,255,0.4); }
-  #corner-br { bottom: 8px; right: 8px; border-bottom: 1px solid rgba(0,255,255,0.4); border-right: 1px solid rgba(0,255,255,0.4); }
-
-  #loading-screen {
-    position: absolute;
-    inset: 0;
-    background: #000814;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    gap: 24px;
-    transition: opacity 0.8s ease;
-  }
-  #loading-screen.hidden { opacity: 0; pointer-events: none; }
-
-  .loading-title {
-    font-size: 32px;
-    letter-spacing: 0.4em;
-    color: #0ff;
-    text-shadow: 0 0 20px #0ff, 0 0 60px rgba(0,255,255,0.3);
-  }
-  .loading-sub {
-    font-size: 11px;
-    letter-spacing: 0.3em;
-    color: rgba(0,255,255,0.5);
-  }
-  .loading-bar-wrap {
-    width: 260px;
-    height: 2px;
-    background: rgba(0,255,255,0.15);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .loading-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #0ff, #f0f);
-    box-shadow: 0 0 10px #0ff;
-    animation: load 2.5s ease forwards;
-    width: 0;
-  }
-  @keyframes load { to { width: 100%; } }
-</style>
+    
 </head>
 <body>
-<div id="app">
-  <video id="webcam" playsinline autoplay muted></video>
-  <canvas id="main-canvas"></canvas>
-
-  <div id="scanlines"></div>
-  <div id="vignette"></div>
-
-  <div id="corner-tl"></div>
-  <div id="corner-tr"></div>
-  <div id="corner-bl"></div>
-  <div id="corner-br"></div>
-
-  <div id="hud">
-    <div class="hud-title">
-      <strong>CATS CRADLE</strong>
-      NEON THREAD // v2.0
-    </div>
-    <div class="hud-right">
-      <span id="status-dot"></span>TRACKING ACTIVE<br>
-      <span id="hand-count">HANDS: 0</span><br>
-      <span id="fps-display">FPS: --</span>
-    </div>
-  </div>
-
-  <div id="loading-screen">
-    <div class="loading-title">CATS CRADLE</div>
-    <div class="loading-sub">INITIALIZING NEURAL HAND TRACKER</div>
-    <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
-    <div class="loading-sub" id="load-msg">LOADING MEDIAPIPE...</div>
-  </div>
-</div>
-
-<!-- MediaPipe -->
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-
-<script>
-// ─── CONFIG ────────────────────────────────────────────────────────────────
-const FINGERTIP_IDS  = [4, 8, 12, 16, 20];
-const ALL_LANDMARK_IDS = Array.from({length: 21}, (_, i) => i);
-const PALM_IDS = [0, 1, 5, 9, 13, 17];
-
-// Color palette
-const COLORS = {
-  cyan:    [0,   255, 255],
-  magenta: [255, 0,   255],
-  yellow:  [255, 230, 0  ],
-  green:   [0,   255, 128],
-};
-
-// ─── STATE ─────────────────────────────────────────────────────────────────
-let hands_data = [];
-let particles  = [];
-let frameCount = 0;
-let lastFpsTime = performance.now();
-let fps = 60;
-let W, H;
-
-// ─── CANVAS SETUP ──────────────────────────────────────────────────────────
-const canvas = document.getElementById('main-canvas');
-const ctx    = canvas.getContext('2d');
-
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-// ─── PARTICLE SYSTEM ───────────────────────────────────────────────────────
-class Particle {
-  constructor(x, y, colorA, colorB) {
-    this.x  = x; this.y = y;
-    this.vx = (Math.random() - 0.5) * 8;
-    this.vy = (Math.random() - 0.5) * 8;
-    this.life = 1.0;
-    this.decay = 0.025 + Math.random() * 0.04;
-    this.size  = 2 + Math.random() * 5;
-    // Pick a random color between two endpoint colors
-    const t = Math.random();
-    this.r = colorA[0] * (1-t) + colorB[0] * t;
-    this.g = colorA[1] * (1-t) + colorB[1] * t;
-    this.b = colorA[2] * (1-t) + colorB[2] * t;
-  }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.vx *= 0.96;
-    this.vy *= 0.96;
-    this.life -= this.decay;
-    this.size *= 0.97;
-  }
-  draw(ctx) {
-    ctx.save();
-    const a = Math.max(0, this.life);
-    ctx.globalAlpha = a;
-    ctx.shadowBlur  = 12;
-    ctx.shadowColor = `rgb(${this.r|0},${this.g|0},${this.b|0})`;
-    ctx.fillStyle   = `rgb(${this.r|0},${this.g|0},${this.b|0})`;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-function spawnExplosion(x, y, colorA, colorB, count = 28) {
-  for (let i = 0; i < count; i++) {
-    particles.push(new Particle(x, y, colorA, colorB));
-  }
-}
-
-// ─── UTILS ─────────────────────────────────────────────────────────────────
-function lerpColor(a, b, t) {
-  return [
-    a[0] + (b[0]-a[0])*t,
-    a[1] + (b[1]-a[1])*t,
-    a[2] + (b[2]-a[2])*t,
-  ];
-}
-function toRgb(c, alpha=1) {
-  return `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${alpha})`;
-}
-function dist(a, b) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
-
-// ─── SILHOUETTE HELPERS ────────────────────────────────────────────────────
-// Draw a ghostly silhouette of the hand using landmark positions
-function drawHandSilhouette(lm) {
-  const CONNECTIONS = [
-    [0,1],[1,2],[2,3],[3,4],
-    [0,5],[5,6],[6,7],[7,8],
-    [0,9],[9,10],[10,11],[11,12],
-    [0,13],[13,14],[14,15],[15,16],
-    [0,17],[17,18],[18,19],[19,20],
-    [5,9],[9,13],[13,17]
-  ];
-  ctx.save();
-  ctx.strokeStyle = 'rgba(0,180,255,0.12)';
-  ctx.lineWidth = 14;
-  ctx.lineCap = 'round';
-  ctx.shadowBlur = 18;
-  ctx.shadowColor = 'rgba(0,200,255,0.15)';
-  for (const [a,b] of CONNECTIONS) {
-    ctx.beginPath();
-    ctx.moveTo(lm[a].x, lm[a].y);
-    ctx.lineTo(lm[b].x, lm[b].y);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-// ─── STRING DRAWING ────────────────────────────────────────────────────────
-let touchCooldown = {};
-
-function drawStrings(leftTips, rightTips) {
-  const maxDist = Math.hypot(W, H);
-
-  for (let i = 0; i < leftTips.length; i++) {
-    const L = leftTips[i];
-    const R = rightTips[i];
-    const d = dist(L, R);
-    const t = Math.min(d / (maxDist * 0.6), 1); // 0 = close, 1 = far
-
-    // Color gradient: cyan -> magenta -> yellow based on distance
-    let col;
-    if (t < 0.5) {
-      col = lerpColor(COLORS.cyan, COLORS.magenta, t * 2);
-    } else {
-      col = lerpColor(COLORS.magenta, COLORS.yellow, (t - 0.5) * 2);
-    }
-
-    const thickness = 1.5 + (1 - t) * 3.5; // thicker when close
-    const glow      = 8  + (1 - t) * 22;
-
-    // Outer glow layer
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(L.x, L.y);
-
-    // Elastic mid-point sag
-    const sag = t * 0.12 * H;
-    const mx  = (L.x + R.x) / 2;
-    const my  = (L.y + R.y) / 2 + sag;
-    ctx.quadraticCurveTo(mx, my, R.x, R.y);
-
-    ctx.strokeStyle = toRgb(col, 0.25);
-    ctx.lineWidth   = thickness + 8;
-    ctx.shadowBlur  = glow * 2;
-    ctx.shadowColor = toRgb(col, 0.5);
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    // Inner laser core
-    ctx.beginPath();
-    ctx.moveTo(L.x, L.y);
-    ctx.quadraticCurveTo(mx, my, R.x, R.y);
-    ctx.strokeStyle = toRgb(col, 0.9);
-    ctx.lineWidth   = thickness;
-    ctx.shadowBlur  = glow;
-    ctx.shadowColor = toRgb(col, 1);
-    ctx.stroke();
-    ctx.restore();
-
-    // ── Collision / touch detection ──────────────────────────────
-    const key = `${i}`;
-    if (d < 28) {
-      if (!touchCooldown[key] || performance.now() - touchCooldown[key] > 400) {
-        touchCooldown[key] = performance.now();
-        spawnExplosion(
-          (L.x + R.x)/2, (L.y + R.y)/2,
-          COLORS.cyan, COLORS.magenta, 32
-        );
-      }
-    }
-  }
-}
-
-// ─── JOINT DOTS ────────────────────────────────────────────────────────────
-function drawJoints(lm, isFingertip) {
-  lm.forEach((pt, i) => {
-    const tip  = FINGERTIP_IDS.includes(i);
-    const size = tip ? 6 : 3;
-    const col  = tip ? COLORS.cyan : COLORS.magenta;
-    const glow = tip ? 18 : 8;
-
-    ctx.save();
-    ctx.shadowBlur  = glow;
-    ctx.shadowColor = toRgb(col);
-    ctx.fillStyle   = toRgb(col);
-    ctx.beginPath();
-    ctx.arc(pt.x, pt.y, size, 0, Math.PI*2);
-    ctx.fill();
-
-    // White core
-    ctx.shadowBlur = 0;
-    ctx.fillStyle  = 'rgba(255,255,255,0.8)';
-    ctx.beginPath();
-    ctx.arc(pt.x, pt.y, size * 0.4, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  });
-}
-
-// ─── MAIN RENDER ───────────────────────────────────────────────────────────
-function render() {
-  requestAnimationFrame(render);
-  frameCount++;
-
-  // FPS counter
-  const now = performance.now();
-  if (now - lastFpsTime > 500) {
-    fps = Math.round(frameCount / ((now - lastFpsTime) / 1000));
-    frameCount = 0;
-    lastFpsTime = now;
-    document.getElementById('fps-display').textContent = `FPS: ${fps}`;
-  }
-
-  // Deep midnight blue background + slight trail effect
-  ctx.fillStyle = 'rgba(0, 4, 20, 0.82)';
-  ctx.fillRect(0, 0, W, H);
-
-  // Update & draw particles
-  particles = particles.filter(p => p.life > 0);
-  for (const p of particles) { p.update(); p.draw(ctx); }
-
-  if (!hands_data.length) return;
-
-  // Gather hands by label
-  let leftHand = null, rightHand = null;
-  for (const h of hands_data) {
-    if (h.label === 'Left')  leftHand  = h.landmarks;
-    if (h.label === 'Right') rightHand = h.landmarks;
-  }
-
-  // Draw silhouettes
-  if (leftHand)  drawHandSilhouette(leftHand);
-  if (rightHand) drawHandSilhouette(rightHand);
-
-  // Draw joints
-  if (leftHand)  drawJoints(leftHand);
-  if (rightHand) drawJoints(rightHand);
-
-  // Draw strings between hands
-  if (leftHand && rightHand) {
-    const leftTips  = FINGERTIP_IDS.map(i => leftHand[i]);
-    const rightTips = FINGERTIP_IDS.map(i => rightHand[i]);
-    drawStrings(leftTips, rightTips);
-  }
-
-  // Update HUD
-  document.getElementById('hand-count').textContent = `HANDS: ${hands_data.length}`;
-}
-render();
-
-// ─── MEDIAPIPE INIT ────────────────────────────────────────────────────────
-async function initMediaPipe() {
-  const video  = document.getElementById('webcam');
-  const loadEl = document.getElementById('load-msg');
-
-  const hands = new Hands({
-    locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
-  });
-
-  hands.setOptions({
-    maxNumHands: 2,
-    modelComplexity: 1,
-    minDetectionConfidence: 0.7,
-    minTrackingConfidence: 0.6,
-  });
-
-  hands.onResults(results => {
-    hands_data = [];
-    if (!results.multiHandLandmarks) return;
-
-    results.multiHandLandmarks.forEach((lm, idx) => {
-      const label = results.multiHandedness[idx].label; // 'Left' or 'Right'
-      // Mirror x coordinate (video is mirrored)
-      const mapped = lm.map(pt => ({
-        x: (1 - pt.x) * W,
-        y: pt.y * H,
-        z: pt.z,
-      }));
-      hands_data.push({ label, landmarks: mapped });
-    });
-  });
-
-  loadEl.textContent = 'REQUESTING CAMERA...';
-
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { width: 1280, height: 720, facingMode: 'user' },
-    audio: false,
-  });
-  video.srcObject = stream;
-  await new Promise(r => video.onloadedmetadata = r);
-  video.play();
-
-  loadEl.textContent = 'CALIBRATING...';
-
-  const camera = new Camera(video, {
-    onFrame: async () => {
-      await hands.send({ image: video });
-    },
-    width: 1280,
-    height: 720,
-  });
-  camera.start();
-
-  // Hide loading screen
-  setTimeout(() => {
-    document.getElementById('loading-screen').classList.add('hidden');
-  }, 800);
-}
-
-// Boot
-initMediaPipe().catch(err => {
-  document.getElementById('load-msg').textContent = 'ERROR: ' + err.message;
-  console.error(err);
-});
-</script>
+    <section class="py-20 bg-cover bg-attachment-fixed bg-top bg-no-repeat bg-white tfa-bg-image-5deff97d-f8cf-4891-baf1-12e0913d28d8-1 tfa-padding-top-80px tfa-padding-right-0px tfa-padding-bottom-80px tfa-padding-left-0px"><div class="container px-4 mx-auto h-full"><div class="grid px-5 lg:px-0 lg:grid-cols-2 place-content-center lg:place-content-end h-full"><div class="grid grid-cols-1 grid-rows-[auto_auto_auto] gap-3 lg:gap-6"><div class="flex gap-3 justify-center items-center md:justify-start"><p class="text-base font-medium text-white text-shadow-xs hidden">
+</p><p class="text-base font-medium text-white text-shadow-xs hidden">10:00 am-4:00 pm IST</p><p class="text-base font-medium text-white text-shadow-xs hidden">Virtual Event</p></div><h1 class="text-4xl md:text-5xl lg:text-[375%] xl:text-7xl text-center md:text-left text-pretty md:text-balance font-serif font-medium text-white text-shadow-xs tfa-padding-top-0px tfa-padding-right-0px tfa-padding-bottom-0px tfa-padding-left-0px tfa-width-54065px tfa-height-auto tfa-font-size-54px tablet:tfa-width-undefined tablet:tfa-font-size-undefined mobile:tfa-width-undefined mobile:tfa-font-size-undefined">Modern Brands, 
+Precisely Built.
+</h1><div class="lg:mt-20 flex flex-col gap-4 lg:gap-6"><p class="text-lg md:text-xl text-white font-light text-center md:text-left text-shadow-xs text-pretty md:text-balance">
+</p><div class="flex flex-wrap gap-3 lg:gap-4 justify-center md:justify-start items-center"><a class="text-base font-medium bg-white hover:bg-gray-100 text-black px-5 py-3 shadow-lg rounded-full transition-color" href="#">Sign up for a Design Consultation</a></div></div></div></div></div></section><section class="py-10"><div class="container mx-auto px-4"><div class="flex flex-col gap-10 md:gap-15"><div class="max-w-3xl flex flex-col gap-2 place-self-center"><h2 class="text-3xl md:text-4xl xl:text-[42px] font-semibold tracking-normal text-center">Be different.
+</h2><p class="px-2 text-lg text-gray-500 text-center text-pretty md:text-balance">Strategic visuals, identity systems, and digital experiences designed to make brands immediately recognizable.
+</p></div><div class="columns-2 md:columns-3 gap-5 lg:gap-10 [&>img:not(:first-child)]:mt-5 lg:[&>img:not(:first-child)]:mt-10"><img class="w-full h-auto object-cover object-center rounded-xl shadow" alt="" src="./assets/images/gallery-1-image-1.jpg"></img><img class="w-full h-auto object-cover object-center rounded-xl shadow" alt="" src="./assets/images/gallery-1-image-2.jpg"></img><img class="w-full h-auto object-cover object-center rounded-xl shadow" alt="" src="./assets/images/gallery-1-image-3.jpg"></img><img class="w-full h-auto object-cover object-center rounded-xl shadow" alt="" src="./assets/images/gallery-1-image-4.jpg"></img><img class="w-full h-auto object-cover object-center rounded-xl shadow" alt="" src="./assets/images/gallery-1-image-5.jpg"></img><img class="w-full h-auto object-cover object-center rounded-xl shadow" alt="" src="./assets/images/gallery-1-image-6.jpg"></img></div></div></div></section><section class="section py-10 bg-white"><div class="container px-4 mx-auto"><div class="grid grid-cols-1 grid-rows-[auto_1fr] gap-5 lg:gap-10"><h2 class="text-lg md:text-xl lg:text-3xl font-semibold text-center">Frequently Asked Questions</h2><div class=""><div class="max-w-5xl w-full mx-auto"><div class="flex flex-col gap-5"><div class="faq border cursor-pointer border-gray-100 bg-gray-50/90 py-3 lg:py-4 rounded md:rounded-lg lg:rounded-xl flex flex-col gap-0 shadow-xs"><h3 class="faq-question grid grid-cols-[1fr_42px] px-4 lg:px-8 grid-rows-1 items-center"><div class="text-sm lg:text-base font-medium font-sans">What services does ZAO Studios offer?
+</div><span class="faq-icon flex justify-end items-center"><svg class="stroke-2 stroke-gray-500 size-4 rotate-180" fill="none" width="24" xmlns="http://www.w3.org/2000/svg" height="24" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round"><path class="" d="m6 9 6 6 6-6"></path></svg></span></h3><div class="faq-answer"><p class="pt-2 lg:pt-4 text-sm lg:text-base px-4 lg:px-8 text-gray-800 font-sans">We specialize in brand identity, logo systems, visual direction, social media design, presentation design, and creative assets for modern businesses.
+</p></div></div><div class="faq border cursor-pointer border-gray-100 bg-gray-50/90 py-3 lg:py-4 rounded md:rounded-lg lg:rounded-xl flex flex-col gap-0 shadow-xs"><h3 class="faq-question grid grid-cols-[1fr_42px] px-4 lg:px-8 grid-rows-1 items-center"><div class="text-sm lg:text-base font-medium font-sans">Who do you work with?
+</div><span class="faq-icon flex justify-end items-center"><svg class="stroke-2 stroke-gray-500 size-4 rotate-180" fill="none" width="24" xmlns="http://www.w3.org/2000/svg" height="24" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round"><path class="" d="m6 9 6 6 6-6"></path></svg></span></h3><div class="faq-answer"><p class="pt-2 lg:pt-4 text-sm lg:text-base px-4 lg:px-8 text-gray-800 font-sans">We work with startups, creators, small businesses, and growing brands looking for a clear and professional visual presence.
+</p></div></div><div class="faq border cursor-pointer border-gray-100 bg-gray-50/90 py-3 lg:py-4 rounded md:rounded-lg lg:rounded-xl flex flex-col gap-0 shadow-xs"><h3 class="faq-question grid grid-cols-[1fr_42px] px-4 lg:px-8 grid-rows-1 items-center"><div class="text-sm lg:text-base font-medium font-sans">What is your design process?
+</div><span class="faq-icon flex justify-end items-center"><svg class="stroke-2 stroke-gray-500 size-4 rotate-180" fill="none" width="24" xmlns="http://www.w3.org/2000/svg" height="24" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round"><path class="" d="m6 9 6 6 6-6"></path></svg></span></h3><div class="faq-answer"><p class="pt-2 lg:pt-4 text-sm lg:text-base px-4 lg:px-8 text-gray-800 font-sans">Each project starts with discovery and direction, followed by concept development, refinement, and final delivery optimized for digital and print use.
+</p></div></div><div class="faq border cursor-pointer border-gray-100 bg-gray-50/90 py-3 lg:py-4 rounded md:rounded-lg lg:rounded-xl flex flex-col gap-0 shadow-xs"><h3 class="faq-question grid grid-cols-[1fr_42px] px-4 lg:px-8 grid-rows-1 items-center"><div class="text-sm lg:text-base font-medium font-sans">How long does a project take?
+</div><span class="faq-icon flex justify-end items-center"><svg class="stroke-2 stroke-gray-500 size-4 rotate-180" fill="none" width="24" xmlns="http://www.w3.org/2000/svg" height="24" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round"><path class="" d="m6 9 6 6 6-6"></path></svg></span></h3><div class="faq-answer"><p class="pt-2 lg:pt-4 text-sm lg:text-base px-4 lg:px-8 text-gray-800 font-sans">Timelines depend on project scope. Most branding and identity projects are completed within 1–3 weeks.
+</p></div></div><div class="faq border cursor-pointer border-gray-100 bg-gray-50/90 py-3 lg:py-4 rounded md:rounded-lg lg:rounded-xl flex flex-col gap-0 shadow-xs"><h3 class="faq-question grid grid-cols-[1fr_42px] px-4 lg:px-8 grid-rows-1 items-center"><div class="text-sm lg:text-base font-medium font-sans">Do you offer revisions?
+</div><span class="faq-icon flex justify-end items-center"><svg class="stroke-2 stroke-gray-500 size-4 rotate-180" fill="none" width="24" xmlns="http://www.w3.org/2000/svg" height="24" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round"><path class="" d="m6 9 6 6 6-6"></path></svg></span></h3><div class="faq-answer"><p class="pt-2 lg:pt-4 text-sm lg:text-base px-4 lg:px-8 text-gray-800 font-sans">Yes. Revisions are included to refine the final result while keeping the project aligned with the original direction.
+</p></div></div></div></div></div></div></div></section><footer class=""><div class="container mx-auto px-4 py-8"><div class="p-10 pt-35 md:pt-25 mt-12 relative border border-gray-200 bg-gray-100 rounded-xl"><div class="absolute bg-gray-900 rounded-xl px-10 py-10 w-full max-w-10/12 left-1/2 -translate-x-1/2 -top-[50px]"><div class="flex flex-col md:flex-row justify-between items-center gap-5"><div class="text-white text-xl sm:text-2xl font-semibold tracking-wider">Sign up for a Design Consultation!
+</div><div class=""><a class="bg-white text-gray-900 px-5 py-3 rounded-lg font-medium hover:bg-gray-200 text-sm" href="#">Sign Up</a></div></div></div><div class="flex flex-col gap-5"><div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-5"><div class="flex flex-col gap-5"><div class=""><a class="" href="/"><img class="h-8 w-auto" alt="Logo" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+Cjxzdmcgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDMyMCAzMjAiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM6c2VyaWY9Imh0dHA6Ly93d3cuc2VyaWYuY29tLyIgc3R5bGU9ImZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoyOyI+CiAgICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCgwLjIwOTk3NywwLDAsMC4yMDk5NzcsLTQ5Ljk3NzI0MiwtNTE5LjUzMjY1KSI+CiAgICAgICAgPGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwtMTYuMDIxMDI5LC01Ny4wNDI0NTcpIj4KICAgICAgICAgICAgPHBhdGggZD0iTTE3NzguMDA4LDI5MTIuMjY5TDE3NzguMDA4LDM2NzQuMjU3QzE3NzguMDA4LDM4ODQuNTMzIDE2MDcuMjkxLDQwNTUuMjUgMTM5Ny4wMTUsNDA1NS4yNUw2MzUuMDI3LDQwNTUuMjVDNDI0Ljc1MSw0MDU1LjI1IDI1NC4wMzQsMzg4NC41MzMgMjU0LjAzNCwzNjc0LjI1N0wyNTQuMDM0LDI5MTIuMjY5QzI1NC4wMzQsMjcwMS45OTMgNDI0Ljc1MSwyNTMxLjI3NiA2MzUuMDI3LDI1MzEuMjc2TDEzOTcuMDE1LDI1MzEuMjc2QzE2MDcuMjkxLDI1MzEuMjc2IDE3NzguMDA4LDI3MDEuOTkzIDE3NzguMDA4LDI5MTIuMjY5WiIvPgogICAgICAgIDwvZz4KICAgICAgICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCgwLjc5OTk5NywwLDAsMC43OTk5OTcsMjAwLjAwMzExMiw2NDcuNDMwNTQyKSI+CiAgICAgICAgICAgIDxwYXRoIGQ9Ik0xMDAwLDI1NTEuMzY3QzEzNzcuODU5LDI1NTEuMzY3IDE2ODQuNjMzLDI4NTguMTQxIDE2ODQuNjMzLDMyMzZDMTY4NC42MzMsMzYxMy44NTkgMTM3Ny44NTksMzkyMC42MzMgMTAwMCwzOTIwLjYzM0M2MjIuMTQxLDM5MjAuNjMzIDMxNS4zNjcsMzYxMy44NTkgMzE1LjM2NywzMjM2QzMxNS4zNjcsMjg1OC4xNDEgNjIyLjE0MSwyNTUxLjM2NyAxMDAwLDI1NTEuMzY3Wk0xMDAwLDI4MTIuODQ0Qzc2Ni40NTQsMjgxMi44NDQgNTc2Ljg0NCwzMDAyLjQ1NCA1NzYuODQ0LDMyMzZDNTc2Ljg0NCwzNDY5LjU0NiA3NjYuNDU0LDM2NTkuMTU2IDEwMDAsMzY1OS4xNTZDMTIzMy41NDYsMzY1OS4xNTYgMTQyMy4xNTYsMzQ2OS41NDYgMTQyMy4xNTYsMzIzNkMxNDIzLjE1NiwzMDAyLjQ1NCAxMjMzLjU0NiwyODEyLjg0NCAxMDAwLDI4MTIuODQ0WiIgc3R5bGU9ImZpbGw6d2hpdGU7Ii8+CiAgICAgICAgPC9nPgogICAgICAgIDxnIHRyYW5zZm9ybT0ibWF0cml4KDEuMjA2NjM0LDAsMCwxLjIwNjYzNCwtNjc0LjA1OTExNSwyMTA2LjQ1NzA5KSI+CiAgICAgICAgICAgIDxjaXJjbGUgY3g9IjEzODcuMzc5IiBjeT0iOTM2LjI5MyIgcj0iNzkuMjg4IiBzdHlsZT0iZmlsbDpyZ2IoMjU1LDYyLDYyKTsiLz4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPgo="></img></a></div><div class="flex flex-col gap-1"><div class="text-xs sm:text-sm">© ZAO Studios
+</div><p class="text-xs max-w-xl text-pretty md:text-balance text-gray-500">DISCLAIMER: These visuals are crafted through research, experimentation, and refined design systems. While every asset is built for consistency and usability, final performance may vary depending on implementation, content, and platform behavior. Please review everything carefully before deployment.
+</p></div></div><div class="grid auto-cols-auto sm:grid-flow-col justify-start items-start gap-10 md:gap-20"><ul class="flex flex-col gap-2 hidden"><li class="font-medium uppercase text-sm">Resources</li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Docs</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">API Reference</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Community</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Guides</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Tutorials</a></li></ul><ul class="flex flex-col gap-2 hidden"><li class="font-medium uppercase text-sm">Support</li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Help Center</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Contact Support</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Status</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Live Chat</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">System Updates</a></li></ul><ul class="flex flex-col gap-2 hidden"><li class="font-medium uppercase text-sm">Legal</li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Privacy Policy</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Terms of Service</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Cookie Policy</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">Security</a></li><li class=""><a class="text-gray-500 hover:text-black text-sm" href="#">GDPR</a></li></ul></div></div></div></div></div></footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="assets/main.js"></script>
+    
 </body>
 </html>
